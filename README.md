@@ -1,2 +1,2 @@
 
-Projekt: Symulacja akwarium z AI i GUI (Java + Swing + Gradle)
+Projekt: Symulacja akwarium z GUI (Java + Swing + Gradle)
