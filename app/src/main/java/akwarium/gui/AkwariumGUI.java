@@ -79,7 +79,6 @@ public class AkwariumGUI extends JFrame implements Symulacja.LogListener {
         
         // Panel logów
         logPanel = new LogPanel();
-        System.out.println("[AkwariumGUI.initComponents]: LogPanel created and assigned. HashCode: " + System.identityHashCode(logPanel));
         mainPanel.add(logPanel, BorderLayout.SOUTH);
         
         // Panel sterowania (prawy)

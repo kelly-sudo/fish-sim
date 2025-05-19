@@ -19,7 +19,6 @@ public class Akwarium {
     public Akwarium(int szerokosc, int wysokosc) { // Usunięto Symulacja symulacja z argumentów
         this.szerokosc = szerokosc;
         this.wysokosc = wysokosc;
-        // this.symulacjaRef = symulacja; // Usunięto przypisanie w konstruktorze
         // Inicjalizacja siatki
         this.siatka = (List<Organizm>[][]) new List[szerokosc][wysokosc];
         for (int i = 0; i < szerokosc; i++) {
@@ -54,10 +53,6 @@ public synchronized void usunOrganizm(Organizm organizm) {
 
 public synchronized void przeniesOrganizm(Organizm organizm, int newX, int newY) {
     if (!czyPolePrawidlowe(newX, newY)) {
-        // System.err.println("Próba przeniesienia organizmu poza granice: (" + newX + "," + newY + ")");
-        // Organizm może próbować wyjść poza planszę - wtedy nie powinien się ruszyć.
-        // Ta logika powinna być w `Ryba.ruszaj` - tam sprawdzamy `czyPolePrawidlowe` i `czyPolePuste`.
-        // Jeśli `przeniesOrganizm` jest wołane, zakładamy, że `newX`, `newY` są już poprawne.
         return; 
     }
 
