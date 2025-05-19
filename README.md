@@ -31,7 +31,7 @@ Aplikacja pozwala na obserwację interakcji między organizmami w zamkniętym ek
 
 1. Sklonuj repozytorium:
    ```
-   git clone [adres-repozytorium]
+   git clone https://github.com/kelly-sudo/fish-sim.git
    ```
 
 2. Przejdź do katalogu projektu:
