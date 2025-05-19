@@ -30,24 +30,29 @@ public class Akwarium {
         this.organizmy = new ArrayList<>();
     }
 
-    public void dodajOrganizm(Organizm organizm) {
+    public synchronized void dodajOrganizm(Organizm organizm) {
+        if (organizm == null) {
+            System.err.println("Próba dodania null jako organizmu.");
+            return;
+        }
         if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
             organizmy.add(organizm);
             siatka[organizm.getX()][organizm.getY()].add(organizm);
+            // logujZdarzenie("Dodano organizm: " + organizm.getClass().getSimpleName() + " na (" + organizm.getX() + "," + organizm.getY() + ")");
         } else {
             // Można dodać logowanie lub rzucić wyjątek, jeśli organizm jest poza granicami
             System.err.println("Próba dodania organizmu poza granicami akwarium: (" + organizm.getX() + "," + organizm.getY() + ")");
         }
     }
 
-public void usunOrganizm(Organizm organizm) {
+public synchronized void usunOrganizm(Organizm organizm) {
     if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
         siatka[organizm.getX()][organizm.getY()].remove(organizm);
     }
     organizmy.remove(organizm);
 }
 
-public void przeniesOrganizm(Organizm organizm, int newX, int newY) {
+public synchronized void przeniesOrganizm(Organizm organizm, int newX, int newY) {
     if (!czyPolePrawidlowe(newX, newY)) {
         // System.err.println("Próba przeniesienia organizmu poza granice: (" + newX + "," + newY + ")");
         // Organizm może próbować wyjść poza planszę - wtedy nie powinien się ruszyć.

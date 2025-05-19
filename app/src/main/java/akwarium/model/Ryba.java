@@ -7,16 +7,30 @@ import java.util.List;
 import java.util.Random;
 
 public abstract class Ryba extends Organizm {
+    private static final Random SHARED_RANDOM = new Random(); // Shared instance
     protected int glod;
     protected int maxGlod;
     protected int predkosc; 
-    protected Random random = new Random();
+    protected Random random; // No longer initialized here
 
     public Ryba(int x, int y, int maxWiek, int predkosc, int maxGlod) {
         super(x, y, maxWiek);
         this.predkosc = predkosc;
         this.maxGlod = maxGlod;
         this.glod = 0; 
+        this.random = SHARED_RANDOM; // Assign shared instance
+    }
+
+    /**
+     * Domyślna implementacja sprawdzająca, czy pole jest akceptowalne do ruchu (tj. puste).
+     * Subklasy mogą nadpisać tę metodę, aby zezwolić na ruch na pola z jedzeniem itp.
+     * @param x współrzędna x pola
+     * @param y współrzędna y pola
+     * @param akwarium instancja akwarium
+     * @return true, jeśli pole jest akceptowalne, false w przeciwnym razie
+     */
+    protected boolean czyPoleAkceptowalne(int x, int y, Akwarium akwarium) {
+        return akwarium.czyPolePuste(x, y); // Domyślnie tylko puste pola są akceptowalne
     }
 
     protected void ruszaj(Akwarium akwarium) {
@@ -28,7 +42,7 @@ public abstract class Ryba extends Organizm {
                 int nowyX = this.x + dx;
                 int nowyY = this.y + dy;
 
-                if (akwarium.czyPolePrawidlowe(nowyX, nowyY) && akwarium.czyPolePuste(nowyX, nowyY)) {
+                if (akwarium.czyPolePrawidlowe(nowyX, nowyY) && this.czyPoleAkceptowalne(nowyX, nowyY, akwarium)) {
                     mozliweRuchy.add(new Point(nowyX, nowyY));
                 }
             }

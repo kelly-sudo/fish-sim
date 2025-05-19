@@ -14,7 +14,7 @@ public class LogPanel extends JPanel {
     private SimpleDateFormat timeFormat;
     
     public LogPanel() {
-        // System.out.println("[LogPanel Constructor]: Creating LogPanel instance. HashCode: " + System.identityHashCode(this)); // Usunięto lub zakomentowano
+
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Logi symulacji"));
         
@@ -34,7 +34,7 @@ public class LogPanel extends JPanel {
         
         // Przycisk do czyszczenia logów
         JButton clearButton = new JButton("Wyczyść logi");
-        clearButton.addActionListener(_ -> clearLogs()); // Zmieniono 'e' na 'ignoredEvent'
+        clearButton.addActionListener(_ -> clearLogs()); 
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(clearButton);
@@ -49,21 +49,21 @@ public class LogPanel extends JPanel {
      * Dodaje nowy wpis do logów.
      * @param message Treść komunikatu
      */
-    public void log(String message) {
-        String timestamp = timeFormat.format(new Date());
-        logArea.append("[" + timestamp + "] " + message + "\n");
-        
-        // Przewijanie do najnowszego wpisu
-        logArea.setCaretPosition(logArea.getDocument().getLength());
-        
-        // Dodatkowe próby odświeżenia
-        logArea.revalidate();
-        logArea.repaint();
+public void log(String message) {
+    String timestamp = timeFormat.format(new Date());
+    logArea.append("[" + timestamp + "] " + message + "\n");
+    
+    // Przewijanie do najnowszego wpisu
+    logArea.setCaretPosition(logArea.getDocument().getLength());
+    
+    // Odświeżenie tylko w razie potrzeby
+    SwingUtilities.invokeLater(() -> {
         if (scrollPane != null) {
             scrollPane.revalidate();
             scrollPane.repaint();
         }
-    }
+    });
+}
     
     /**
      * Czyści wszystkie logi.
@@ -74,10 +74,10 @@ public class LogPanel extends JPanel {
     }
 
     /**
-     * Zwraca instancję JTextArea używaną do logowania.
-     * @return JTextArea dla logów.
+     * Zwraca tekst z obszaru logów.
+     * @return Tekst z obszaru logów.
      */
-    public JTextArea getLogArea() {
-        return logArea;
+    public String getLogText() {
+        return logArea.getText();
     }
 }

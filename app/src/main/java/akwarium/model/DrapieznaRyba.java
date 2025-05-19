@@ -29,22 +29,11 @@ public class DrapieznaRyba extends Ryba {
 
                 List<Organizm> organizmyNaPolu = akwarium.getOrganizmyNaPozycji(sprawdzanyX, sprawdzanyY);
                 for (Organizm o : organizmyNaPolu) {
-                    if (o instanceof RoslinozernaRyba && o.czyZywy() && o != this) { // Upewnij się, że nie próbuje zjeść siebie
+                    if (o instanceof RoslinozernaRyba && o.czyZywy()) { // Sprawdź czy to żywa ryba roślinożerna
                         RoslinozernaRyba rybaDoZjedzenia = (RoslinozernaRyba) o;
                         // Podobnie jak u roślinożernej, uproszczona logika zjadania z sąsiedniego pola
                         jedz(rybaDoZjedzenia, akwarium);
-                        // Jeśli drapieżnik zjadł rybę z sąsiedniego pola, powinien się tam przenieść.
-                        // Na razie, dla uproszczenia, zakładamy, że po prostu ją zjada.
-                        // W bardziej zaawansowanej wersji, drapieżnik przeniósłby się na pole ofiary.
-                        // Jeśli ofiara była na tym samym polu, drapieżnik pozostaje.
-                        // Jeśli ofiara była obok, drapieżnik powinien się przenieść na jej miejsce.
-                        if (sprawdzanyX != this.x || sprawdzanyY != this.y) {
-                            // Przenieś drapieżnika na miejsce zjedzonej ryby
-                            // akwarium.przeniesOrganizm(this, sprawdzanyX, sprawdzanyY);
-                            // Powyższe przeniesienie jest problematyczne, bo pole może nie być już "puste"
-                            // w sensie metody Ryba.ruszaj(). Na razie zostawiamy bez przenoszenia po zjedzeniu z sąsiedztwa.
-                            // Główne, że ofiara znika.
-                        }
+
                         return true;
                     }
                 }
@@ -53,10 +42,10 @@ public class DrapieznaRyba extends Ryba {
         return false;
     }
 
-    private void jedz(RoslinozernaRyba ryba, Akwarium akwarium) { // Dodano Akwarium jako argument
+    private void jedz(RoslinozernaRyba ryba, Akwarium akwarium) {
         ryba.zabij();
         this.zmniejszGlod(WARTOSC_ODZYWCZA_ROSLINOZERNEJ);
-        akwarium.logujZdarzenie("Ryba drapieżna (" + this.x + "," + this.y + ") zjada rybę roślinożerną (" + ryba.getX() + "," + ryba.getY() + ").");
+        akwarium.logujZdarzenie("Ryba drapieżna (" + getX() + "," + getY() + ") zjada rybę roślinożerną (" + ryba.getX() + "," + ryba.getY() + ").");
     }
 
     @Override

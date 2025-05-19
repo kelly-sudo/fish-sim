@@ -20,11 +20,25 @@ public abstract class Organizm {
     public abstract String getSymbol(); // Dla potencjalnej reprezentacji tekstowej
 
     // Gettery
-public int getX() { return x; }
-public int getY() { return y; }
-public boolean czyZywy() { return zywy; }
-public int getWiek() { return wiek; }
-public int getMaxWiek() { return maxWiek; }
+public int getX() { 
+    return x; 
+}
+
+public int getY() { 
+    return y; 
+}
+
+public boolean czyZywy() { 
+    return zywy; 
+}
+
+public int getWiek() { 
+    return wiek; 
+}
+
+public int getMaxWiek() { 
+    return maxWiek; 
+}
 
     // Settery i inne metody
     public void setPozycja(int x, int y) {
@@ -35,10 +49,14 @@ public int getMaxWiek() { return maxWiek; }
     public void zabij() {
         this.zywy = false;
     }
-public void zwiekszWiek() {
-    this.wiek++;
-   if (this.wiek >= this.maxWiek) {
-       this.zabij();
-   }
-}
+
+    public boolean zwiekszWiek() {
+        this.wiek++;
+        boolean killed = false;
+        if (this.wiek >= this.maxWiek) {
+            this.zabij(); // Wywołanie metody zabij() z tej samej klasy
+            killed = true;
+        }
+        return killed;
+    }
 }

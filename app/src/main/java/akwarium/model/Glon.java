@@ -13,26 +13,24 @@ public class Glon extends Organizm {
         super(x, y, 50); // maxWiek
         this.wartoscOdzywcza = 10; // Przykładowa wartość
     }
-
 @Override
-public void akcja(Akwarium akwarium) {
-    zwiekszWiek();
-    if (getWiek() >= maxWiek) {
-        zabij();
-        return;
-    }
+    public void akcja(Akwarium akwarium) {
+        zwiekszWiek();
+        if (getWiek() >= maxWiek) {
+            zabij();
+            return;
+        }
 
-        // Logika rozrostu (rozmnażania)
+    // Logika rozrostu (rozmnażania)
         if (random.nextDouble() < SZANSA_NA_ROZROST) {
-            Point pustePole = akwarium.znajdzPusteSasiedniePole(this.x, this.y);
-            if (pustePole != null) {
-                Glon nowyGlon = new Glon(pustePole.x, pustePole.y);
-                akwarium.dodajOrganizm(nowyGlon);
-                akwarium.logujZdarzenie("Glon (" + this.x + "," + this.y + ") rozmnaża się na (" + pustePole.x + "," + pustePole.y + ").");
-            }
+        Point pustePole = akwarium.znajdzPusteSasiedniePole(this.x, this.y);
+        if (pustePole != null) {
+            Glon nowyGlon = new Glon(pustePole.x, pustePole.y);
+            akwarium.dodajOrganizm(nowyGlon);
+                akwarium.logujZdarzenie("Glon (" + getX() + "," + getY() + ") rozmnaża się na (" + pustePole.x + "," + pustePole.y + ").");
         }
     }
-
+    }
     public int getWartoscOdzywcza() {
         return wartoscOdzywcza;
     }

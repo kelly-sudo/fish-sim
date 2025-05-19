@@ -286,15 +286,8 @@ public class AkwariumGUI extends JFrame implements Symulacja.LogListener {
      */
     @Override
     public void onLog(String message) {
-        if (logPanel != null && logPanel.getLogArea() != null) {
-            JTextArea area = logPanel.getLogArea();
-            String currentTimestamp = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-            String formattedMessage = "[" + currentTimestamp + "] " + message + "\n";
-            
-            SwingUtilities.invokeLater(() -> {
-                area.append(formattedMessage);
-                area.setCaretPosition(area.getDocument().getLength());
-            });
+        if (logPanel != null) {
+            logPanel.log(message);
         }
     }
 

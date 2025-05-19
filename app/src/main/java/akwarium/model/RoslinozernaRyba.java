@@ -35,23 +35,7 @@ public class RoslinozernaRyba extends Ryba {
                             jedz(glon, akwarium);
                             return true;
                         } else {
-                            // Jeśli glon jest obok, najpierw spróbuj się tam ruszyć
-                            // Ta logika jest uproszczona; w bardziej złożonym systemie ruch i jedzenie mogłyby być oddzielnymi akcjami
-                            // Na razie zakładamy, że jeśli ryba widzi jedzenie obok, to je zjada (teleportuje się i zjada)
-                            // lub po prostu zjada, jeśli jest na tym samym polu.
-                            // Dla uproszczenia, jeśli glon jest obok, a ryba jest głodna, to go zjada.
-                            // W bardziej realistycznej symulacji, ryba musiałaby się najpierw przesunąć.
-                            // Aktualna implementacja `ruszaj` w klasie Ryba szuka pustego pola.
-                            // Zmieńmy to tak, że jeśli znajdzie jedzenie obok, to je zjada.
-                            // Jeśli jest na tym samym polu - zjada.
-                            // Jeśli jest na sąsiednim - przesuwa się na to pole i zjada.
-                            
-                            // Uproszczenie: Jeśli glon jest na sąsiednim polu, ryba go zjada.
-                            // W bardziej zaawansowanej wersji, ryba by się tam przeniosła.
-                            // Tutaj, dla celów jedzenia, uznajemy, że może dosięgnąć.
-                            // Ale glon musi być zabity z jego oryginalnej pozycji.
                             jedz(glon, akwarium); // glon.zabij() usunie go z akwarium
-                            // Ryba nie zmienia pozycji w tej uproszczonej logice jedzenia z sąsiedniego pola
                             return true;
                         }
                     }
