@@ -95,5 +95,7 @@ Szczegółowa dokumentacja kodu znajduje się w katalogu `docs/`:
 - [Diagram maszyny stanów](docs/diagramMaszynyStanow.png)
 
 ## Autorzy
+Radosław Huppert 284754
+Oskar Lech 284723
 
 Projekt został stworzony jako część kursu programowania obiektowego.
