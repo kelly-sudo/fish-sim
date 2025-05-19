@@ -7,23 +7,21 @@ import java.util.List;
 import java.util.Random;
 
 public abstract class Ryba extends Organizm {
-    private static final Random SHARED_RANDOM = new Random(); // Shared instance
+    private static final Random SHARED_RANDOM = new Random(); 
     protected int glod;
     protected int maxGlod;
     protected int predkosc; 
-    protected Random random; // No longer initialized here
+    protected Random random; 
 
     public Ryba(int x, int y, int maxWiek, int predkosc, int maxGlod) {
         super(x, y, maxWiek);
         this.predkosc = predkosc;
         this.maxGlod = maxGlod;
         this.glod = 0; 
-        this.random = SHARED_RANDOM; // Assign shared instance
+        this.random = SHARED_RANDOM; 
     }
 
     /**
-     * Domyślna implementacja sprawdzająca, czy pole jest akceptowalne do ruchu (tj. puste).
-     * Subklasy mogą nadpisać tę metodę, aby zezwolić na ruch na pola z jedzeniem itp.
      * @param x współrzędna x pola
      * @param y współrzędna y pola
      * @param akwarium instancja akwarium
@@ -69,7 +67,6 @@ public abstract class Ryba extends Organizm {
         boolean zjadlem = probaJedzenia(akwarium);
 
         if (!zjadlem) {
-            // Jeśli nie zjadłem, spróbuj się rozmnożyć (jeśli nie jestem zbyt głodny)
             boolean rozmnazylemSie = false;
             if (!czyBardzoGlodna()) { // Dodajmy warunek, żeby nie rozmnażały się na skraju śmierci głodowej
                 rozmnazylemSie = probaRozmnazania(akwarium);

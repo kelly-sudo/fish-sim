@@ -134,19 +134,7 @@ public synchronized void przeniesOrganizm(Organizm organizm, int newX, int newY)
      */
     public void logujZdarzenie(String message) {
         if (symulacjaRef != null) {
-            // Bezpośrednie wywołanie metody logującej symulacji, jeśli taka istnieje
-            // lub przez listenera, jeśli symulacja ma taką metodę.
-            // Zakładając, że Symulacja ma publiczną metodę log(String) lub dostęp do listenera.
-            // Na razie, Symulacja.log jest prywatna, ale ma setLogListener.
-            // To wymaga, aby Symulacja miała publiczną metodę logującą.
-            // Zmienimy to później, na razie użyjemy obejścia, jeśli Symulacja.log jest prywatna.
-            // Dla uproszczenia, załóżmy, że Symulacja będzie miała publiczną metodę do logowania.
-            // Poniżej jest obejście, jeśli Symulacja.log jest prywatna i używa listenera:
-            // if (symulacjaRef.getLogListener() != null) { // Potrzebny getter dla listenera w Symulacji
-            //     symulacjaRef.getLogListener().onLog(message);
-            // }
-            // Bezpośrednie wywołanie metody log w Symulacji (jeśli ją upublicznimy)
-             symulacjaRef.logMessage(message); // Założenie, że dodamy publiczną metodę logMessage do Symulacji
+             symulacjaRef.logMessage(message); 
         } else {
             System.out.println("Akwarium.logujZdarzenie (symulacjaRef is null): " + message);
         }
