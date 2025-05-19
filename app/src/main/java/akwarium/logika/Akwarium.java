@@ -13,11 +13,13 @@ public class Akwarium {
     private List<Organizm>[][] siatka;
     private List<Organizm> organizmy; // Główna lista wszystkich organizmów
     private Random random = new Random();
+    private Symulacja symulacjaRef; // Referencja do symulacji dla logowania
 
     @SuppressWarnings("unchecked")
-    public Akwarium(int szerokosc, int wysokosc) {
+    public Akwarium(int szerokosc, int wysokosc) { // Usunięto Symulacja symulacja z argumentów
         this.szerokosc = szerokosc;
         this.wysokosc = wysokosc;
+        // this.symulacjaRef = symulacja; // Usunięto przypisanie w konstruktorze
         // Inicjalizacja siatki
         this.siatka = (List<Organizm>[][]) new List[szerokosc][wysokosc];
         for (int i = 0; i < szerokosc; i++) {
@@ -38,33 +40,35 @@ public class Akwarium {
         }
     }
 
-    public void usunOrganizm(Organizm organizm) {
-        organizmy.remove(organizm);
-        if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
-            siatka[organizm.getX()][organizm.getY()].remove(organizm);
-        }
+public void usunOrganizm(Organizm organizm) {
+    if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
+        siatka[organizm.getX()][organizm.getY()].remove(organizm);
+    }
+    organizmy.remove(organizm);
+}
+
+public void przeniesOrganizm(Organizm organizm, int newX, int newY) {
+    if (!czyPolePrawidlowe(newX, newY)) {
+        // System.err.println("Próba przeniesienia organizmu poza granice: (" + newX + "," + newY + ")");
+        // Organizm może próbować wyjść poza planszę - wtedy nie powinien się ruszyć.
+        // Ta logika powinna być w `Ryba.ruszaj` - tam sprawdzamy `czyPolePrawidlowe` i `czyPolePuste`.
+        // Jeśli `przeniesOrganizm` jest wołane, zakładamy, że `newX`, `newY` są już poprawne.
+        return; 
     }
 
-    public void przeniesOrganizm(Organizm organizm, int newX, int newY) {
-        if (!czyPolePrawidlowe(newX, newY)) {
-            // System.err.println("Próba przeniesienia organizmu poza granice: (" + newX + "," + newY + ")");
-            // Organizm może próbować wyjść poza planszę - wtedy nie powinien się ruszyć.
-            // Ta logika powinna być w `Ryba.ruszaj` - tam sprawdzamy `czyPolePrawidlowe` i `czyPolePuste`.
-            // Jeśli `przeniesOrganizm` jest wołane, zakładamy, że `newX`, `newY` są już poprawne.
-            return; 
-        }
-
-        // Usuń z poprzedniej lokalizacji na siatce
-        if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
-            siatka[organizm.getX()][organizm.getY()].remove(organizm);
-        }
-        
-        // Ustaw nową pozycję organizmu
-        organizm.setPozycja(newX, newY);
-        
-        // Dodaj do nowej lokalizacji na siatce
-        siatka[newX][newY].add(organizm);
+    // Ta metoda pozwala na przesunięcie organizmu na pole zajęte przez inne organizmy
+    // zgodnie z założeniem, że wiele organizmów może znajdować się na jednym polu
+    // Usuń z poprzedniej lokalizacji na siatce
+    if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
+        siatka[organizm.getX()][organizm.getY()].remove(organizm);
     }
+    
+    // Ustaw nową pozycję organizmu
+    organizm.setPozycja(newX, newY);
+    
+    // Dodaj do nowej lokalizacji na siatce
+    siatka[newX][newY].add(organizm);
+}
 
     public List<Organizm> getOrganizmyNaPozycji(int x, int y) {
         if (czyPolePrawidlowe(x, y)) {
@@ -109,5 +113,37 @@ public class Akwarium {
             return pustePola.get(random.nextInt(pustePola.size())); // Zwróć losowe puste sąsiednie pole
         }
         return null; // Brak pustych sąsiednich pól
+    }
+
+    /**
+     * Ustawia referencję do obiektu symulacji.
+     * @param symulacja Obiekt symulacji.
+     */
+    public void setSymulacjaRef(Symulacja symulacja) {
+        this.symulacjaRef = symulacja;
+    }
+
+    /**
+     * Loguje zdarzenie za pośrednictwem referencji do symulacji.
+     * @param message Wiadomość do zalogowania.
+     */
+    public void logujZdarzenie(String message) {
+        if (symulacjaRef != null) {
+            // Bezpośrednie wywołanie metody logującej symulacji, jeśli taka istnieje
+            // lub przez listenera, jeśli symulacja ma taką metodę.
+            // Zakładając, że Symulacja ma publiczną metodę log(String) lub dostęp do listenera.
+            // Na razie, Symulacja.log jest prywatna, ale ma setLogListener.
+            // To wymaga, aby Symulacja miała publiczną metodę logującą.
+            // Zmienimy to później, na razie użyjemy obejścia, jeśli Symulacja.log jest prywatna.
+            // Dla uproszczenia, załóżmy, że Symulacja będzie miała publiczną metodę do logowania.
+            // Poniżej jest obejście, jeśli Symulacja.log jest prywatna i używa listenera:
+            // if (symulacjaRef.getLogListener() != null) { // Potrzebny getter dla listenera w Symulacji
+            //     symulacjaRef.getLogListener().onLog(message);
+            // }
+            // Bezpośrednie wywołanie metody log w Symulacji (jeśli ją upublicznimy)
+             symulacjaRef.logMessage(message); // Założenie, że dodamy publiczną metodę logMessage do Symulacji
+        } else {
+            System.out.println("Akwarium.logujZdarzenie (symulacjaRef is null): " + message);
+        }
     }
 }

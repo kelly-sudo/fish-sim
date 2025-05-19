@@ -45,7 +45,7 @@ public abstract class Ryba extends Organizm {
     @Override
     public void akcja(Akwarium akwarium) {
         zwiekszWiek();
-        zwiekszGlod(1); 
+        zwiekszGlod(1);
 
         if (getWiek() >= maxWiek || this.glod >= maxGlod) {
             zabij(); 
@@ -54,9 +54,87 @@ public abstract class Ryba extends Organizm {
 
         boolean zjadlem = probaJedzenia(akwarium);
 
-        if (!zjadlem) { 
-            ruszaj(akwarium);
+        if (!zjadlem) {
+            // Jeśli nie zjadłem, spróbuj się rozmnożyć (jeśli nie jestem zbyt głodny)
+            boolean rozmnazylemSie = false;
+            if (!czyBardzoGlodna()) { // Dodajmy warunek, żeby nie rozmnażały się na skraju śmierci głodowej
+                rozmnazylemSie = probaRozmnazania(akwarium);
+            }
+
+            if (!rozmnazylemSie) { // Jeśli nie zjadłem i się nie rozmnożyłem, ruszaj się
+                ruszaj(akwarium);
+            }
         }
+    }
+
+    /**
+     * Ryba próbuje się rozmnożyć z inną rybą tego samego typu na sąsiednim polu.
+     * @param akwarium Akwarium, w którym żyje ryba.
+     * @return true, jeśli ryba się rozmnożyła, false w przeciwnym razie.
+     */
+    protected boolean probaRozmnazania(Akwarium akwarium) {
+        // Ryby mogą się rozmnażać tylko jeśli są dobrze odżywione (np. głód < 25% maxGłodu)
+        // oraz mają pewien minimalny wiek (np. > 10% maxWiek) - opcjonalnie, na razie pomijamy wiek
+        if (this.glod > this.maxGlod * 0.25) { // Zaostrzony warunek głodu
+            return false;
+        }
+        // if (this.wiek < this.maxWiek * 0.1) return false; // Opcjonalny warunek wieku
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue; // Pomijamy własne pole
+
+                int sasiadX = this.x + dx;
+                int sasiadY = this.y + dy;
+
+                if (akwarium.czyPolePrawidlowe(sasiadX, sasiadY)) {
+                    List<Organizm> organizmyNaPoluSasiada = akwarium.getOrganizmyNaPozycji(sasiadX, sasiadY);
+                    for (Organizm potencjalnyPartner : organizmyNaPoluSasiada) {
+                        // Sprawdź, czy to ryba tego samego typu i czy też jest dobrze odżywiona
+                        if (potencjalnyPartner.getClass() == this.getClass() && potencjalnyPartner.czyZywy()) {
+                            Ryba partner = (Ryba) potencjalnyPartner;
+                            if (partner.glod <= partner.maxGlod * 0.25) { // Zaostrzony warunek głodu dla partnera
+                                // if (partner.wiek < partner.maxWiek * 0.1) continue; // Opcjonalny warunek wieku dla partnera
+                                
+                                // Szansa na rozmnożenie, nawet jeśli warunki są spełnione (np. 30% szansy)
+                                if (random.nextDouble() < 0.3) {
+                                    Point wolneMiejsce = akwarium.znajdzPusteSasiedniePole(this.x, this.y);
+                                    if (wolneMiejsce == null) {
+                                        wolneMiejsce = akwarium.znajdzPusteSasiedniePole(partner.x, partner.y);
+                                    }
+
+                                    if (wolneMiejsce != null) {
+                                        Organizm potomek = null;
+                                        if (this instanceof DrapieznaRyba) {
+                                            potomek = new DrapieznaRyba(wolneMiejsce.x, wolneMiejsce.y);
+                                        } else if (this instanceof RoslinozernaRyba) {
+                                            potomek = new RoslinozernaRyba(wolneMiejsce.x, wolneMiejsce.y);
+                                        }
+
+                                        if (potomek != null) {
+                                            akwarium.dodajOrganizm(potomek);
+                                            akwarium.logujZdarzenie(this.getClass().getSimpleName() + " (" + this.x + "," + this.y +
+                                                               ") rozmnaża się z partnerem (" + partner.x + "," + partner.y +
+                                                               "). Potomek na (" + wolneMiejsce.x + "," + wolneMiejsce.y + ")");
+                                        
+                                            // Znacznie zwiększony koszt energetyczny rozmnażania
+                                            this.zwiekszGlod(this.maxGlod / 3); // Np. 1/3 maksymalnego głodu
+                                            partner.zwiekszGlod(partner.maxGlod / 3); // Np. 1/3 maksymalnego głodu
+                                            return true; // Rozmnożono pomyślnie
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false; // Nie udało się rozmnożyć
+    }
+    
+    protected boolean czyBardzoGlodna() {
+        return this.glod > this.maxGlod * 0.8; // Np. 80% maksymalnego głodu
     }
 
     // Metody związane z głodem

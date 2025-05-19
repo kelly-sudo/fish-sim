@@ -13,10 +13,11 @@ public class Symulacja {
     private Random random = new Random();
     private int tura = 0;
 
-    private static final double SZANSA_NA_NOWY_GLON_LOSOWO = 0.02; 
+    private static final double SZANSA_NA_NOWY_GLON_LOSOWO = 0.02;
 
-    public Symulacja(Akwarium akwarium) {
-        this.akwarium = akwarium;
+    public Symulacja(int szerokoscAkwarium, int wysokoscAkwarium) {
+        this.akwarium = new Akwarium(szerokoscAkwarium, wysokoscAkwarium);
+        this.akwarium.setSymulacjaRef(this); // Przekazanie referencji do Akwarium
     }
 
     public void inicjalizuj(int liczbaDrapieznikow, int liczbaRoslinozernych, int liczbaGlonow) {
@@ -72,25 +73,24 @@ public class Symulacja {
     }
 
     public void wykonajTure() {
-        if (pauza) return;
-
+        // Usuwamy warunek pauzy, aby metoda działała również przy ręcznym wywołaniu
         tura++;
         log("--- Tura: " + tura + " ---");
 
-        List<Organizm> organizmyWTurze = akwarium.getOrganizmy(); 
+ List<Organizm> organizmyWTurze = new ArrayList<>(akwarium.getOrganizmy()); 
 
-        for (Organizm organizm : organizmyWTurze) {
-            if (organizm.czyZywy()) { 
-                organizm.akcja(akwarium);
-            }
-        }
+  for (Organizm organizm : organizmyWTurze) {
+      if (organizm.czyZywy()) { 
+          organizm.akcja(akwarium);
+      }
+  }
 
-        List<Organizm> martweOrganizmy = new ArrayList<>();
-        for (Organizm organizm : akwarium.getOrganizmy()) { 
-            if (!organizm.czyZywy()) {
-                martweOrganizmy.add(organizm);
-            }
-        }
+  List<Organizm> martweOrganizmy = new ArrayList<>();
+ for (Organizm organizm : new ArrayList<>(akwarium.getOrganizmy())) { 
+      if (!organizm.czyZywy()) {
+          martweOrganizmy.add(organizm);
+      }
+  }
 
         for (Organizm martwy : martweOrganizmy) {
             log(martwy.getClass().getSimpleName() + " umiera na pozycji (" + martwy.getX() + "," + martwy.getY() + "). Wiek: " + martwy.getWiek() + (martwy instanceof Ryba ? ", Głód: " + ((Ryba)martwy).getGlod() : "") );
@@ -108,11 +108,37 @@ public class Symulacja {
         }
     }
 
+    // Interfejs do obsługi logów
+    public interface LogListener {
+        void onLog(String message);
+    }
+    
+    private LogListener logListener;
+    
+    public void setLogListener(LogListener listener) {
+        this.logListener = listener;
+    }
+    
     private void log(String message) {
-        System.out.println(message);
+        // System.out.println(message); // Opcjonalnie można zostawić lub usunąć logowanie do konsoli
+        if (logListener != null) {
+            logListener.onLog(message);
+        }
+    }
+
+    /**
+     * Publiczna metoda do logowania komunikatów przez inne klasy (np. Akwarium).
+     * @param message Wiadomość do zalogowania.
+     */
+    public void logMessage(String message) {
+        log(message); // Wywołuje prywatną metodę logującą, która obsługuje listenera
     }
     
     public Akwarium getAkwarium() {
         return akwarium;
+    }
+    
+    public int getTura() {
+        return tura;
     }
 }
