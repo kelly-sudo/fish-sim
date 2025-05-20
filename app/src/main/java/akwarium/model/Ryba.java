@@ -21,14 +21,8 @@ public abstract class Ryba extends Organizm {
         this.random = SHARED_RANDOM; 
     }
 
-    /**
-     * @param x współrzędna x pola
-     * @param y współrzędna y pola
-     * @param akwarium instancja akwarium
-     * @return true, jeśli pole jest akceptowalne, false w przeciwnym razie
-     */
     protected boolean czyPoleAkceptowalne(int x, int y, Akwarium akwarium) {
-        return akwarium.czyPolePuste(x, y); // Domyślnie tylko puste pola są akceptowalne
+        return akwarium.czyPolePuste(x, y); // tylko puste pola są akceptowalne
     }
 
     protected void ruszaj(Akwarium akwarium) {
@@ -68,28 +62,21 @@ public abstract class Ryba extends Organizm {
 
         if (!zjadlem) {
             boolean rozmnazylemSie = false;
-            if (!czyBardzoGlodna()) { // Dodajmy warunek, żeby nie rozmnażały się na skraju śmierci głodowej
+            if (!czyBardzoGlodna()) { 
                 rozmnazylemSie = probaRozmnazania(akwarium);
             }
 
-            if (!rozmnazylemSie) { // Jeśli nie zjadłem i się nie rozmnożyłem, ruszaj się
+            if (!rozmnazylemSie) {
                 ruszaj(akwarium);
             }
         }
     }
 
-    /**
-     * Ryba próbuje się rozmnożyć z inną rybą tego samego typu na sąsiednim polu.
-     * @param akwarium Akwarium, w którym żyje ryba.
-     * @return true, jeśli ryba się rozmnożyła, false w przeciwnym razie.
-     */
     protected boolean probaRozmnazania(Akwarium akwarium) {
         // Ryby mogą się rozmnażać tylko jeśli są dobrze odżywione (np. głód < 25% maxGłodu)
-        // oraz mają pewien minimalny wiek (np. > 10% maxWiek) - opcjonalnie, na razie pomijamy wiek
-        if (this.glod > this.maxGlod * 0.25) { // Zaostrzony warunek głodu
+        if (this.glod > this.maxGlod * 0.25) { 
             return false;
         }
-        // if (this.wiek < this.maxWiek * 0.1) return false; // Opcjonalny warunek wieku
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
@@ -104,10 +91,7 @@ public abstract class Ryba extends Organizm {
                         // Sprawdź, czy to ryba tego samego typu i czy też jest dobrze odżywiona
                         if (potencjalnyPartner.getClass() == this.getClass() && potencjalnyPartner.czyZywy()) {
                             Ryba partner = (Ryba) potencjalnyPartner;
-                            if (partner.glod <= partner.maxGlod * 0.25) { // Zaostrzony warunek głodu dla partnera
-                                // if (partner.wiek < partner.maxWiek * 0.1) continue; // Opcjonalny warunek wieku dla partnera
-                                
-                                // Szansa na rozmnożenie, nawet jeśli warunki są spełnione (np. 30% szansy)
+                            if (partner.glod <= partner.maxGlod * 0.25) { 
                                 if (random.nextDouble() < 0.3) {
                                     Point wolneMiejsce = akwarium.znajdzPusteSasiedniePole(this.x, this.y);
                                     if (wolneMiejsce == null) {
