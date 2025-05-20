@@ -97,7 +97,7 @@ Projekt jest zorganizowany w następujące pakiety:
 ## Dokumentacja
 
 Szczegółowa dokumentacja kodu znajduje się w katalogu `docs/`:
-- [Dokumentacja kodu](docs/dokumentacja_kodu.md)
+- [Dokumentacja kodu](docs/dokumentacja_kodu.md) (Jeszcze zostały poprawki)
 - [Diagram klas](docs/diagramKlas.png)
 - [Diagram obiektów](docs/diagramObiektow.png)
 - [Diagram sekwencji](docs/diagramSekwencji.png)
