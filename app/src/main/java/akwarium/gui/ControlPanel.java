@@ -29,21 +29,6 @@ public class ControlPanel extends JPanel {
     private final int DOMYSLNA_LICZBA_GLONOW;
     private final int DOMYSLNA_PREDKOSC;
     
-    /**
-     * Konstruktor panelu sterowania.
-     * @param startAction Akcja dla przycisku Start
-     * @param stopAction Akcja dla przycisku Stop
-     * @param krokAction Akcja dla przycisku Wykonaj krok
-     * @param resetAction Akcja dla przycisku Reset
-     * @param predkoscChangeAction Akcja dla zmiany prędkości
-     * @param zastosujZmianyAction Akcja dla przycisku Zastosuj zmiany
-     * @param domyslnaSzerokosc Domyślna szerokość akwarium
-     * @param domyslnaWysokosc Domyślna wysokość akwarium
-     * @param domyslnaLiczbaDrapieznikow Domyślna liczba drapieżników
-     * @param domyslnaLiczbaRoslinozernych Domyślna liczba roślinożernych
-     * @param domyslnaLiczbaGlonow Domyślna liczba glonów
-     * @param domyslnaPredkosc Domyślna prędkość symulacji
-     */
     public ControlPanel(
             ActionListener startAction,
             ActionListener stopAction,
@@ -120,7 +105,7 @@ public class ControlPanel extends JPanel {
         predkoscSlider.setMinorTickSpacing(5);
         predkoscSlider.setPaintTicks(true);
         predkoscSlider.setPaintLabels(true);
-        predkoscSlider.addChangeListener(_ -> { // Zmieniono 'e' na 'ignoredEvent'
+        predkoscSlider.addChangeListener(_ -> { 
             if (!predkoscSlider.getValueIsAdjusting()) {
                 predkoscChangeAction.accept(predkoscSlider.getValue());
             }
@@ -171,10 +156,6 @@ public class ControlPanel extends JPanel {
         add(Box.createVerticalGlue());
     }
     
-    /**
-     * Ustawia stan przycisków w zależności od stanu symulacji.
-     * @param symulacjaUruchomiona Czy symulacja jest uruchomiona
-     */
     public void ustawStanPrzyciskow(boolean symulacjaUruchomiona) {
         startButton.setEnabled(!symulacjaUruchomiona);
         stopButton.setEnabled(symulacjaUruchomiona);
