@@ -7,7 +7,7 @@ import java.util.Random;
 public class Glon extends Organizm {
     private int wartoscOdzywcza;
     private Random random = new Random();
-    private static final double SZANSA_NA_ROZROST = 0.015; // Zmniejszono do 1.5% szansy na rozrost w każdej turze
+    private static final double SZANSA_NA_ROZROST = 0.015; //  1.5% szansy na rozrost w każdej turze
 
     public Glon(int x, int y) {
         super(x, y, 50); // maxWiek
