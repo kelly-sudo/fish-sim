@@ -36,7 +36,7 @@ public class AkwariumPanel extends JPanel {
         setBackground(new Color(230, 240, 255)); // Jasnoniebieski kolor tła
         
         komorkiSiatki = new JPanel[akwarium.getSzerokosc()][akwarium.getWysokosc()];
-        etykietySiatki = new JLabel[akwarium.getSzerokosc()][akwarium.getWysokosc()]; // Initialize labels array
+        etykietySiatki = new JLabel[akwarium.getSzerokosc()][akwarium.getWysokosc()]; 
         
         for (int y = 0; y < akwarium.getWysokosc(); y++) {
             for (int x = 0; x < akwarium.getSzerokosc(); x++) {
@@ -49,7 +49,7 @@ public class AkwariumPanel extends JPanel {
                 JLabel label = new JLabel("", SwingConstants.CENTER);
                 label.setFont(new Font("Arial", Font.BOLD, 14));
                 etykietySiatki[x][y] = label; // Store the label
-                komorkiSiatki[x][y].add(label, BorderLayout.CENTER); // Add label to panel
+                komorkiSiatki[x][y].add(label, BorderLayout.CENTER); 
 
                 add(komorkiSiatki[x][y]);
             }
@@ -74,18 +74,18 @@ public class AkwariumPanel extends JPanel {
                     JLabel etykieta = etykietySiatki[x][y];
 
                     String nowyTekst = organizm.getSymbol();
-                    Color nowyKolorTla = komorka.getBackground(); // Default to current
-                    Color nowyKolorCzcionki = etykieta.getForeground(); // Default to current
+                    Color nowyKolorTla = komorka.getBackground();
+                    Color nowyKolorCzcionki = etykieta.getForeground(); 
 
                     if (organizm instanceof DrapieznaRyba) {
-                        nowyKolorTla = new Color(255, 150, 150); // Czerwonawy
+                        nowyKolorTla = new Color(255, 150, 150); 
                         nowyKolorCzcionki = Color.RED;
                     } else if (organizm instanceof RoslinozernaRyba) {
-                        nowyKolorTla = new Color(150, 150, 255); // Niebieskawy
+                        nowyKolorTla = new Color(150, 150, 255); 
                         nowyKolorCzcionki = Color.BLUE;
                     } else if (organizm instanceof Glon) {
-                        nowyKolorTla = new Color(150, 255, 150); // Zielonawy
-                        nowyKolorCzcionki = new Color(0, 100, 0); // Ciemnozielony
+                        nowyKolorTla = new Color(150, 255, 150); 
+                        nowyKolorCzcionki = new Color(0, 100, 0); 
                     }
 
                     boolean zmieniono = false;
@@ -127,12 +127,9 @@ public class AkwariumPanel extends JPanel {
                         komorka.setBackground(Color.WHITE);
                         zmieniono = true;
                     }
-                    // Reset foreground for empty cell for consistency, though not visible
-                    if (!etykieta.getForeground().equals(Color.BLACK)) { // Assuming default empty text color is black
-                         etykieta.setForeground(Color.BLACK); // Or any default color
-                         // No need to set zmieniono = true if only foreground of empty text changes, 
-                         // as it's not visible for empty text. However, if strict state reset is needed, set it.
-                         // zmieniono = true;
+                    
+                    if (!etykieta.getForeground().equals(Color.BLACK)) { 
+                         etykieta.setForeground(Color.BLACK); 
                     }
 
 
@@ -143,7 +140,6 @@ public class AkwariumPanel extends JPanel {
                 }
             }
         }
-        // Global revalidate/repaint are removed as updates are per-cell
     }
     
     /**
