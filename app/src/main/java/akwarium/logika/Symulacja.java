@@ -73,7 +73,6 @@ public class Symulacja {
     }
 
     public void wykonajTure() {
-        // Usuwamy warunek pauzy, aby metoda działała również przy ręcznym wywołaniu
         tura++;
         log("--- Tura: " + tura + " ---");
 
@@ -120,18 +119,13 @@ public class Symulacja {
     }
     
     private void log(String message) {
-        // System.out.println(message); // Opcjonalnie można zostawić lub usunąć logowanie do konsoli
         if (logListener != null) {
             logListener.onLog(message);
         }
     }
 
-    /**
-     * Publiczna metoda do logowania komunikatów przez inne klasy (np. Akwarium).
-     * @param message Wiadomość do zalogowania.
-     */
     public void logMessage(String message) {
-        log(message); // Wywołuje prywatną metodę logującą, która obsługuje listenera
+        log(message); 
     }
     
     public Akwarium getAkwarium() {
