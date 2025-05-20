@@ -16,7 +16,7 @@ import java.util.List;
 public class AkwariumPanel extends JPanel {
     private Akwarium akwarium;
     private JPanel[][] komorkiSiatki;
-    private JLabel[][] etykietySiatki; // Store labels for direct access
+    private JLabel[][] etykietySiatki; 
     
     /**
      * Konstruktor panelu akwarium.
