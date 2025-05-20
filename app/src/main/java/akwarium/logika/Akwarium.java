@@ -37,9 +37,7 @@ public class Akwarium {
         if (czyPolePrawidlowe(organizm.getX(), organizm.getY())) {
             organizmy.add(organizm);
             siatka[organizm.getX()][organizm.getY()].add(organizm);
-            // logujZdarzenie("Dodano organizm: " + organizm.getClass().getSimpleName() + " na (" + organizm.getX() + "," + organizm.getY() + ")");
         } else {
-            // Można dodać logowanie lub rzucić wyjątek, jeśli organizm jest poza granicami
             System.err.println("Próba dodania organizmu poza granicami akwarium: (" + organizm.getX() + "," + organizm.getY() + ")");
         }
     }
@@ -72,25 +70,23 @@ public synchronized void przeniesOrganizm(Organizm organizm, int newX, int newY)
 
     public List<Organizm> getOrganizmyNaPozycji(int x, int y) {
         if (czyPolePrawidlowe(x, y)) {
-            return new ArrayList<>(siatka[x][y]); // Zwracamy kopię, aby uniknąć ConcurrentModificationException
+            return new ArrayList<>(siatka[x][y]); 
         }
         return new ArrayList<>(); // Pusta lista, jeśli poza granicami
     }
 
     public List<Organizm> getOrganizmy() {
-        return new ArrayList<>(organizmy); // Zwracamy kopię
+        return new ArrayList<>(organizmy); 
     }
 
     public int getSzerokosc() { return szerokosc; }
     public int getWysokosc() { return wysokosc; }
 
-    // Nowe metody pomocnicze
     public boolean czyPolePrawidlowe(int x, int y) {
         return x >= 0 && x < szerokosc && y >= 0 && y < wysokosc;
     }
 
     public boolean czyPolePuste(int x, int y) {
-        // Pole jest puste, jeśli jest prawidłowe i nie ma na nim żadnych organizmów
         return czyPolePrawidlowe(x, y) && siatka[x][y].isEmpty();
     }
 
@@ -115,18 +111,10 @@ public synchronized void przeniesOrganizm(Organizm organizm, int newX, int newY)
         return null; // Brak pustych sąsiednich pól
     }
 
-    /**
-     * Ustawia referencję do obiektu symulacji.
-     * @param symulacja Obiekt symulacji.
-     */
     public void setSymulacjaRef(Symulacja symulacja) {
         this.symulacjaRef = symulacja;
     }
 
-    /**
-     * Loguje zdarzenie za pośrednictwem referencji do symulacji.
-     * @param message Wiadomość do zalogowania.
-     */
     public void logujZdarzenie(String message) {
         if (symulacjaRef != null) {
              symulacjaRef.logMessage(message); 
