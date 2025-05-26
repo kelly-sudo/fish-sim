@@ -55,9 +55,13 @@ Aplikacja pozwala na obserwację interakcji między organizmami w zamkniętym ek
    ```
    który znajduje się w głównym katalogu projektu. Nie wymaga to budowania i uruchamiania przez Gradle.
 
+   ```
+   /dist/FishSim.app
+   ```
+   Działa tylko na macOS.
+
    Plik .exe może być usuwany przez antywirusa jako podejrzenie wirusa i jest to false positive:
    https://www.virustotal.com/gui/file/f0f4d490c1d1e7971196e5a97e96b85ec8c95f0c9763119cc53dfda988c8c270?nocache=1
-
 ## Jak korzystać z aplikacji
 
 1. Po uruchomieniu aplikacji zobaczysz główne okno z siatką akwarium, panelem sterowania i panelem logów.
