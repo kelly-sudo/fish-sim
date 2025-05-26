@@ -4,259 +4,323 @@ Ten dokument opisuje działanie poszczególnych plików `.java` w projekcie symu
 
 ## `app/src/main/java/akwarium/Main.java`
 
-*   **Cel:** Główna klasa aplikacji.
-*   **Działanie (oczekiwane):** Będzie odpowiedzialna za inicjalizację i uruchomienie głównego okna interfejsu graficznego (`AkwariumGUI`) oraz, pośrednio, symulacji.
-*   **Aktualny stan:** Plik jest obecnie pusty i czeka na implementację.
+*   **Cel:** Główna klasa aplikacji, odpowiedzialna za uruchomienie interfejsu graficznego.
+*   **Działanie:**
+    1.  Ustawia wygląd aplikacji na systemowy (lub domyślny, jeśli systemowy jest niedostępny).
+    2.  Tworzy i wyświetla główne okno aplikacji (`AkwariumGUI`) w wątku zdarzeń Swing (EDT).
+*   **Metody:**
+    *   `main(String[] args)`: Punkt startowy aplikacji. Inicjalizuje i uruchamia GUI.
 
 ## `app/src/main/java/akwarium/gui/AkwariumGUI.java`
 
-*   **Cel:** Klasa odpowiedzialna za główny interfejs graficzny użytkownika (GUI).
-*   **Działanie (oczekiwane):** Będzie zawierać główne okno aplikacji, w którym znajdą się:
-    *   Panel wyświetlający akwarium i organizmy.
-    *   Panel sterowania z przyciskami (Start, Pauza, Reset) i suwakiem prędkości.
-    *   Panel statystyk.
-    *   Panel logów.
-    *   Obsługa zdarzeń od użytkownika (np. kliknięcia przycisków).
-    *   Uruchamianie i kontrolowanie obiektu `Symulacja`.
-*   **Aktualny stan:** Plik jest obecnie pusty i czeka na implementację.
+*   **Cel:** Klasa odpowiedzialna za główny interfejs graficzny użytkownika (GUI) symulacji.
+*   **Dziedziczy po:** `JFrame`
+*   **Implementuje:** `Symulacja.LogListener` (do odbierania logów z logiki symulacji)
+*   **Główne komponenty:**
+    *   `AkwariumPanel`: Wyświetla wizualizację akwarium.
+    *   `LogPanel`: Wyświetla logi zdarzeń z symulacji.
+    *   `ControlPanel`: Zawiera przyciski sterujące symulacją (Start, Stop, Krok, Reset), suwak prędkości oraz pola do konfiguracji parametrów symulacji (rozmiar akwarium, liczba organizmów).
+    *   Pasek menu (`JMenuBar`): Z opcjami "Plik" (Zapisz, Wczytaj, Wyjdź) i "Pomoc" (O programie).
+*   **Pola:**
+    *   Stałe definiujące domyślne parametry symulacji (np. `DOMYSLNA_SZEROKOSC`, `DOMYSLNA_LICZBA_DRAPIEZNIKOW`).
+    *   Referencje do obiektów `Akwarium` i `Symulacja`.
+    *   `Timer`: Steruje cyklicznym wykonywaniem kroków symulacji.
+    *   `symulacjaUruchomiona`: Flaga `boolean` wskazująca, czy symulacja jest aktywna.
+*   **Konstruktor:** `AkwariumGUI()`
+    1.  Konfiguruje podstawowe właściwości okna (tytuł, rozmiar, operacja zamknięcia).
+    2.  Inicjalizuje obiekt `Symulacja` (który tworzy wewnętrznie obiekt `Akwarium`).
+    3.  Ustawia `AkwariumGUI` jako nasłuchiwacz logów dla `Symulacja`.
+    4.  Wywołuje `initComponents()` do stworzenia i rozmieszczenia komponentów GUI.
+    5.  Inicjalizuje symulację domyślnymi wartościami organizmów i prędkości.
+    6.  Tworzy `Timer` do obsługi pętli symulacji.
+    7.  Aktualizuje widok panelu akwarium.
+    8.  Loguje start aplikacji.
+*   **Metody (prywatne):**
+    *   `initComponents()`: Tworzy i konfiguruje wszystkie komponenty GUI (panele, przyciski, menu). Ustawia ich rozmieszczenie w głównym oknie.
+    *   `createMenuBar()`: Tworzy i zwraca pasek menu z odpowiednimi akcjami.
+    *   `startSymulacja()`: Uruchamia symulację (ustawia flagę, startuje `Timer`, aktualizuje stan przycisków, loguje).
+    *   `stopSymulacja()`: Zatrzymuje symulację (ustawia flagę, zatrzymuje `Timer`, aktualizuje stan przycisków, loguje).
+    *   `wykonajKrokSymulacji()`: Wywołuje metodę `wykonajTure()` w obiekcie `Symulacja` i odświeża panel akwarium.
+    *   `resetSymulacja()`: Zatrzymuje bieżącą symulację, pobiera nowe parametry z `ControlPanel` i inicjalizuje symulację od nowa.
+    *   `zastosujZmianyRozmiaru()`: Zatrzymuje symulację, pobiera nowy rozmiar akwarium z `ControlPanel`, tworzy nową instancję `Symulacja` i `Akwarium`, aktualizuje panel akwarium i inicjalizuje symulację.
+*   **Metody (publiczne, z interfejsu `LogListener`):**
+    *   `onLog(String message)`: Odbiera komunikaty logów z obiektu `Symulacja` i przekazuje je do `logPanel`.
+*   **Obsługa zdarzeń:**
+    *   Przyciski w `ControlPanel` wywołują odpowiednie metody (`startSymulacja`, `stopSymulacja` itd.).
+    *   Zmiana wartości suwaka prędkości aktualizuje opóźnienie `Timer` i prędkość w `Symulacja`.
+    *   Elementy menu mają przypisane akcje (np. wyświetlenie okna "O programie", zamknięcie aplikacji).
+    *   Zamknięcie okna (`WindowAdapter`) zatrzymuje `Timer` przed zamknięciem aplikacji.
 
 ## `app/src/main/java/akwarium/gui/LogPanel.java`
 
-*   **Cel:** Klasa odpowiedzialna za panel wyświetlający logi zdarzeń z symulacji.
-*   **Działanie (oczekiwane):** Będzie komponentem Swing (prawdopodobnie `JTextArea` wewnątrz `JScrollPane`) służącym do wyświetlania komunikatów o przebiegu symulacji. Będzie posiadać metodę do dodawania nowych wpisów do logu.
-*   **Aktualny stan:** Plik jest obecnie pusty i czeka na implementację.
+*   **Cel:** Panel GUI odpowiedzialny za wyświetlanie logów zdarzeń z symulacji.
+*   **Dziedziczy po:** `JPanel`
+*   **Główne komponenty:**
+    *   `JTextArea`: Wyświetla tekst logów. Jest nieedytowalna i zawinięta w `JScrollPane`.
+    *   `JScrollPane`: Umożliwia przewijanie `JTextArea`, gdy logi przekraczają widoczny obszar.
+    *   `JButton` ("Wyczyść logi"): Czyści zawartość `JTextArea`.
+*   **Pola:**
+    *   `logArea`: Instancja `JTextArea`.
+    *   `scrollPane`: Instancja `JScrollPane`.
+    *   `timeFormat`: `SimpleDateFormat` do formatowania znacznika czasu dla każdego logu.
+*   **Konstruktor:** `LogPanel()`
+    1.  Ustawia układ panelu (`BorderLayout`) i tytuł ramki.
+    2.  Inicjalizuje `JTextArea` (czcionka, zawijanie linii) i `JScrollPane`.
+    3.  Inicjalizuje `SimpleDateFormat`.
+    4.  Dodaje `JScrollPane` (z `JTextArea`) do centralnej części panelu.
+    5.  Tworzy przycisk "Wyczyść logi" i dodaje mu `ActionListener` do wywołania `clearLogs()`.
+    6.  Dodaje przycisk do dolnej części panelu.
+    7.  Loguje inicjalizację panelu.
+*   **Metody (publiczne):**
+    *   `log(String message)`: Dodaje nowy wpis do `logArea`. Wpis jest poprzedzony sformatowanym znacznikiem czasu. Automatycznie przewija `JTextArea` do najnowszego wpisu.
+    *   `clearLogs()`: Czyści całą zawartość `logArea` i dodaje log o wyczyszczeniu.
+    *   `getLogText()`: Zwraca całą zawartość tekstową z `logArea`.
 
 ## `app/src/main/java/akwarium/logika/Akwarium.java`
 
 *   **Pakiet:** `akwarium.logika`
-*   **Cel:** Reprezentuje środowisko akwarium, w którym żyją organizmy. Zarządza siatką i listą organizmów.
+*   **Cel:** Reprezentuje środowisko akwarium. Zarządza siatką, na której znajdują się organizmy, oraz listą wszystkich organizmów.
 *   **Pola:**
     *   `szerokosc`, `wysokosc`: `int`, wymiary akwarium.
-    *   `siatka`: `List<Organizm>[][]`, dwuwymiarowa tablica list, gdzie każda komórka (x, y) może przechowywać wiele organizmów znajdujących się na tym samym polu.
+    *   `siatka`: `List<Organizm>[][]`, dwuwymiarowa tablica list. Każda komórka `siatka[x][y]` przechowuje listę organizmów znajdujących się na danym polu. Umożliwia to przebywanie wielu organizmów w tej samej lokalizacji.
     *   `organizmy`: `List<Organizm>`, główna lista wszystkich organizmów w akwarium.
-    *   `random`: `Random`, generator liczb losowych.
+    *   `random`: `Random`, generator liczb losowych (np. do znajdowania pustych sąsiednich pól).
+    *   `symulacjaRef`: `Symulacja`, referencja do obiektu symulacji, używana do logowania zdarzeń.
 *   **Konstruktor:** `Akwarium(int szerokosc, int wysokosc)`
     1.  Inicjalizuje pola `szerokosc` i `wysokosc`.
-    2.  Tworzy tablicę `siatka` o podanych wymiarach, a każdą jej komórkę inicjalizuje jako nową `ArrayList<Organizm>`.
+    2.  Tworzy tablicę `siatka` o podanych wymiarach. Każdą komórkę `siatka[i][j]` inicjalizuje jako nową `ArrayList<Organizm>`.
     3.  Inicjalizuje listę `organizmy` jako nową `ArrayList<Organizm>`.
-*   **Metody:**
+*   **Metody (publiczne, zsynchronizowane dla bezpieczeństwa wątkowego):**
     *   `dodajOrganizm(Organizm organizm)`:
-        1.  Sprawdza, czy pozycja (x, y) podanego organizmu mieści się w granicach akwarium (`czyPolePrawidlowe`).
-        2.  Jeśli tak:
+        1.  Sprawdza, czy przekazany organizm nie jest `null`.
+        2.  Sprawdza, czy pozycja (x, y) organizmu mieści się w granicach akwarium (`czyPolePrawidlowe`).
+        3.  Jeśli tak:
             *   Dodaje organizm do głównej listy `organizmy`.
             *   Dodaje organizm do listy w odpowiedniej komórce `siatka[organizm.getX()][organizm.getY()]`.
-        3.  Jeśli nie, wypisuje komunikat błędu na `System.err`.
+        4.  Jeśli nie, wypisuje komunikat błędu.
     *   `usunOrganizm(Organizm organizm)`:
-        1.  Usuwa organizm z głównej listy `organizmy`.
-        2.  Jeśli pozycja organizmu jest prawidłowa, usuwa go również z listy w odpowiedniej komórce `siatka`.
+        1.  Jeśli pozycja organizmu jest prawidłowa, usuwa go z listy w odpowiedniej komórce `siatka`.
+        2.  Usuwa organizm z głównej listy `organizmy`.
     *   `przeniesOrganizm(Organizm organizm, int newX, int newY)`:
-        1.  Sprawdza, czy nowa pozycja (`newX`, `newY`) jest prawidłowa. Jeśli nie, metoda kończy działanie (organizm nie rusza się poza planszę).
-        2.  Usuwa organizm z listy w jego starej komórce `siatka[organizm.getX()][organizm.getY()]`.
+        1.  Sprawdza, czy nowa pozycja (`newX`, `newY`) jest prawidłowa. Jeśli nie, metoda kończy działanie.
+        2.  Usuwa organizm z listy w jego starej komórce `siatka[organizm.getX()][organizm.getY()]` (jeśli była prawidłowa).
         3.  Aktualizuje wewnętrzne współrzędne organizmu poprzez `organizm.setPozycja(newX, newY)`.
         4.  Dodaje organizm do listy w nowej komórce `siatka[newX][newY]`.
+*   **Metody (publiczne, gettery i sprawdzające):**
     *   `getOrganizmyNaPozycji(int x, int y)`:
         1.  Sprawdza, czy podane współrzędne (x, y) są prawidłowe.
-        2.  Jeśli tak, zwraca *kopię* listy organizmów znajdujących się w komórce `siatka[x][y]`. Zwracanie kopii zapobiega problemom z modyfikacją listy podczas iteracji (np. `ConcurrentModificationException`).
+        2.  Jeśli tak, zwraca *kopię* listy organizmów z komórki `siatka[x][y]`. Zwracanie kopii zapobiega `ConcurrentModificationException`.
         3.  Jeśli współrzędne są nieprawidłowe, zwraca pustą `ArrayList`.
     *   `getOrganizmy()`: Zwraca *kopię* głównej listy `organizmy`.
-    *   `getSzerokosc()`, `getWysokosc()`: Proste gettery zwracające wymiary akwarium.
-    *   `czyPolePrawidlowe(int x, int y)`: Zwraca `true`, jeśli podane współrzędne (x, y) mieszczą się w granicach akwarium (od 0 do szerokosc-1 i od 0 do wysokosc-1), w przeciwnym razie `false`.
-    *   `czyPolePuste(int x, int y)`: Zwraca `true`, jeśli pole o podanych współrzędnych jest prawidłowe ORAZ lista organizmów w `siatka[x][y]` jest pusta. W przeciwnym razie `false`.
+    *   `getSzerokosc()`, `getWysokosc()`: Proste gettery.
+    *   `czyPolePrawidlowe(int x, int y)`: Zwraca `true`, jeśli (x, y) jest w granicach akwarium.
+    *   `czyPolePuste(int x, int y)`: Zwraca `true`, jeśli pole (x, y) jest prawidłowe ORAZ lista organizmów w `siatka[x][y]` jest pusta.
     *   `znajdzPusteSasiedniePole(int x, int y)`:
-        1.  Tworzy pustą listę `pustePola` (typu `List<Point>`).
-        2.  Iteruje przez 8 pól sąsiadujących z pozycją (x, y) (pola od x-1,y-1 do x+1,y+1, z pominięciem samego x,y).
-        3.  Dla każdego sąsiedniego pola (nx, ny), jeśli jest ono puste (`czyPolePuste(nx, ny)`), dodaje nowy obiekt `Point(nx, ny)` do listy `pustePola`.
-        4.  Jeśli lista `pustePola` nie jest pusta (czyli znaleziono jakieś puste sąsiednie pola), losowo wybiera jedno z nich i zwraca je.
-        5.  Jeśli nie znaleziono żadnych pustych sąsiednich pól, zwraca `null`.
+        1.  Przeszukuje 8 pól sąsiadujących z (x, y).
+        2.  Dla każdego sąsiedniego pola, jeśli jest puste (`czyPolePuste`), dodaje je do listy potencjalnych pól.
+        3.  Jeśli znaleziono puste sąsiednie pola, losowo wybiera jedno z nich i zwraca jako `Point`.
+        4.  Jeśli nie ma pustych sąsiednich pól, zwraca `null`.
+*   **Metody związane z logowaniem:**
+    *   `setSymulacjaRef(Symulacja symulacja)`: Ustawia referencję do obiektu `Symulacja`.
+    *   `logujZdarzenie(String message)`: Jeśli `symulacjaRef` jest ustawiona, przekazuje komunikat do metody `logMessage` obiektu `Symulacja`. W przeciwnym razie wypisuje na `System.out`.
 
 ## `app/src/main/java/akwarium/logika/Symulacja.java`
 
 *   **Pakiet:** `akwarium.logika`
-*   **Cel:** Zarządza główną pętlą symulacji, kolejnością tur, interakcjami między organizmami oraz stanem symulacji (pauza, prędkość).
+*   **Cel:** Główna klasa logiki symulacji. Zarządza przebiegiem tur, stanem symulacji (pauza, prędkość), inicjalizacją oraz interakcjami między organizmami.
 *   **Pola:**
-    *   `akwarium`: `Akwarium`, instancja środowiska symulacji.
-    *   `pauza`: `boolean`, flaga wskazująca, czy symulacja jest wstrzymana (domyślnie `true`).
+    *   `akwarium`: `Akwarium`, instancja środowiska.
+    *   `pauza`: `boolean`, flaga wstrzymania symulacji (domyślnie `true`).
     *   `predkoscSymulacji`: `int`, opóźnienie między turami w milisekundach (domyślnie 500ms).
     *   `random`: `Random`, generator liczb losowych.
     *   `tura`: `int`, licznik wykonanych tur.
-    *   `SZANSA_NA_NOWY_GLON_LOSOWO`: `double`, stała określająca prawdopodobieństwo (0.0 do 1.0) pojawienia się nowego glonu w losowym miejscu w każdej turze.
-*   **Konstruktor:** `Symulacja(Akwarium akwarium)`
-    1.  Przypisuje przekazany obiekt `Akwarium` do pola `this.akwarium`.
-*   **Metody:**
+    *   `SZANSA_NA_NOWY_GLON_LOSOWO`: `double` (stała), prawdopodobieństwo pojawienia się nowego glonu w losowym miejscu w każdej turze.
+    *   `logListener`: `LogListener`, obiekt nasłuchujący zdarzeń logowania (zazwyczaj `AkwariumGUI`).
+*   **Interfejs wewnętrzny:**
+    *   `LogListener`: Definiuje metodę `onLog(String message)`, którą implementują klasy chcące otrzymywać logi z symulacji.
+*   **Konstruktor:** `Symulacja(int szerokoscAkwarium, int wysokoscAkwarium)`
+    1.  Tworzy nową instancję `Akwarium` o podanych wymiarach.
+    2.  Przekazuje referencję `this` (obiektu `Symulacja`) do nowo utworzonego `Akwarium` za pomocą `akwarium.setSymulacjaRef(this)`.
+*   **Metody sterujące symulacją:**
     *   `inicjalizuj(int liczbaDrapieznikow, int liczbaRoslinozernych, int liczbaGlonow)`:
-        1.  Pobiera listę wszystkich organizmów z akwarium i usuwa każdy z nich (`akwarium.usunOrganizm(o)`).
+        1.  Usuwa wszystkie istniejące organizmy z akwarium.
         2.  Resetuje licznik `tura` do 0.
-        3.  Loguje komunikat "Czyszczenie akwarium...".
-        4.  Tworzy i dodaje do akwarium zadaną liczbę `DrapieznaRyba` w losowych pozycjach.
-        5.  Tworzy i dodaje do akwarium zadaną liczbę `RoslinozernaRyba` w losowych pozycjach.
-        6.  Tworzy i dodaje do akwarium zadaną liczbę `Glon` w losowych pozycjach.
-        7.  Loguje komunikat o zakończeniu inicjalizacji z podaniem liczby poszczególnych organizmów.
-    *   `start()`: Ustawia `pauza` na `false` i loguje "Symulacja wznowiona.".
-    *   `pauza()`: Ustawia `pauza` na `true` i loguje "Symulacja spauzowana.".
-    *   `reset()`:
-        1.  Ustawia `pauza` na `true`.
-        2.  Wywołuje `inicjalizuj()` z domyślnymi wartościami (np. 5 drapieżników, 10 roślinożernych, 20 glonów).
-        3.  Loguje "Symulacja zresetowana.".
+        3.  Loguje czyszczenie akwarium.
+        4.  Tworzy i dodaje do akwarium zadaną liczbę `DrapieznaRyba`, `RoslinozernaRyba` i `Glon` w losowych, prawidłowych pozycjach.
+        5.  Loguje zakończenie inicjalizacji z podsumowaniem liczby organizmów.
+    *   `start()`: Ustawia `pauza` на `false` i loguje wznowienie.
+    *   `pauza()`: Ustawia `pauza` на `true` i loguje spauzowanie.
+    *   `reset()`: Ustawia `pauza` na `true`, wywołuje `inicjalizuj()` z domyślnymi wartościami i loguje reset.
     *   `setPredkoscSymulacji(int wartoscSlidera)`:
-        1.  Przelicza wartość ze slidera (zakładany zakres 0-100) na prędkość symulacji w milisekundach. Wzór mapuje 0 na najwolniejszą prędkość (np. 2000ms) i 100 na najszybszą (np. 100ms).
+        1.  Przelicza wartość ze slidera (zakres 0-100) na prędkość symulacji w milisekundach. Wzór mapuje 0 na najwolniejszą prędkość (np. 2000ms) i 100 na najszybszą (np. 100ms).
         2.  Loguje nową ustawioną prędkość.
-    *   `getPredkoscSymulacji()`: Zwraca aktualną wartość `predkoscSymulacji`.
-    *   `czyPauza()`: Zwraca aktualny stan flagi `pauza`.
+    *   `getPredkoscSymulacji()`: Zwraca `predkoscSymulacji`.
+    *   `czyPauza()`: Zwraca stan flagi `pauza`.
+*   **Metoda główna pętli symulacji:**
     *   `wykonajTure()`:
-        1.  Jeśli `pauza` jest `true`, natychmiast kończy działanie.
-        2.  Inkrementuje licznik `tura`.
-        3.  Loguje rozpoczęcie nowej tury z jej numerem.
-        4.  Pobiera *kopię* listy wszystkich organizmów z akwarium (`organizmyWTurze`).
-        5.  **Faza akcji organizmów:** Iteruje po liście `organizmyWTurze`. Dla każdego organizmu, jeśli jest żywy (`organizm.czyZywy()`), wywołuje jego metodę `organizm.akcja(akwarium)`.
-        6.  **Faza usuwania martwych organizmów:**
-            *   Tworzy nową pustą listę `martweOrganizmy`.
+        1.  Inkrementuje licznik `tura`.
+        2.  Loguje rozpoczęcie nowej tury.
+        3.  Pobiera *kopię* listy wszystkich organizmów z akwarium (`organizmyWTurze`).
+        4.  **Faza akcji organizmów:** Iteruje po `organizmyWTurze`. Dla każdego żywego organizmu (`organizm.czyZywy()`) wywołuje jego metodę `organizm.akcja(akwarium)`.
+        5.  **Faza usuwania martwych organizmów:**
+            *   Tworzy listę `martweOrganizmy`.
             *   Iteruje po aktualnej liście organizmów w akwarium. Jeśli organizm nie jest żywy, dodaje go do `martweOrganizmy`.
-            *   Iteruje po liście `martweOrganizmy`. Dla każdego martwego organizmu:
-                *   Loguje informację o jego śmierci, typie, pozycji, wieku i (jeśli to ryba) poziomie głodu.
+            *   Iteruje po `martweOrganizmy`. Dla każdego martwego organizmu:
+                *   Loguje informację o jego śmierci (typ, pozycja, wiek, ewentualnie głód dla ryb).
                 *   Usuwa go z akwarium (`akwarium.usunOrganizm(martwy)`).
-        7.  **Faza pojawiania się nowych glonów:**
-            *   Generuje losową liczbę. Jeśli jest mniejsza niż `SZANSA_NA_NOWY_GLON_LOSOWO`:
-                *   Losuje pozycję (rx, ry) w akwarium.
-                *   Jeśli wylosowane pole jest puste (`akwarium.czyPolePuste(rx, ry)`):
-                    *   Tworzy nowy obiekt `Glon` na tej pozycji.
-                    *   Dodaje nowy glon do akwarium.
+        6.  **Faza pojawiania się nowych glonów:**
+            *   Jeśli losowa liczba jest mniejsza niż `SZANSA_NA_NOWY_GLON_LOSOWO`:
+                *   Losuje pozycję (rx, ry).
+                *   Jeśli pole (rx, ry) jest puste (`akwarium.czyPolePuste(rx, ry)`):
+                    *   Tworzy nowy `Glon` i dodaje go do akwarium.
                     *   Loguje pojawienie się nowego glonu.
-    *   `log(String message)`: Wypisuje przekazany komunikat na standardowe wyjście (`System.out.println(message)`).
+*   **Metody związane z logowaniem:**
+    *   `setLogListener(LogListener listener)`: Ustawia obiekt nasłuchujący logi.
+    *   `log(String message)` (prywatna): Jeśli `logListener` jest ustawiony, przekazuje mu komunikat.
+    *   `logMessage(String message)` (publiczna, używana przez `Akwarium`): Przekazuje komunikat do prywatnej metody `log`.
+*   **Gettery:**
     *   `getAkwarium()`: Zwraca referencję do obiektu `akwarium`.
+    *   `getTura()`: Zwraca aktualny numer tury.
 
 ## `app/src/main/java/akwarium/model/Organizm.java`
 
 *   **Pakiet:** `akwarium.model`
 *   **Cel:** Abstrakcyjna klasa bazowa dla wszystkich organizmów w symulacji. Definiuje wspólne cechy i zachowania.
 *   **Pola (protected):**
-    *   `x`, `y`: `int`, współrzędne organizmu na siatce akwarium.
-    *   `zywy`: `boolean`, flaga wskazująca, czy organizm żyje.
-    *   `wiek`: `int`, wiek organizmu liczony w turach symulacji.
-    *   `maxWiek`: `int`, maksymalny wiek, po osiągnięciu którego organizm umiera.
+    *   `x`, `y`: `int`, współrzędne na siatce.
+    *   `zywy`: `boolean`, czy organizm żyje.
+    *   `wiek`: `int`, wiek w turach.
+    *   `maxWiek`: `int`, maksymalny wiek, po którym organizm umiera.
 *   **Konstruktor:** `Organizm(int x, int y, int maxWiek)`
-    1.  Inicjalizuje pola `x`, `y`, `maxWiek`.
-    2.  Ustawia `zywy` na `true`.
-    3.  Ustawia `wiek` na `0`.
+    1.  Inicjalizuje `x`, `y`, `maxWiek`.
+    2.  Ustawia `zywy` na `true` i `wiek` na `0`.
 *   **Metody abstrakcyjne (muszą być zaimplementowane przez klasy dziedziczące):**
-    *   `akcja(Akwarium akwarium)`: Definiuje specyficzne dla danego typu organizmu działania wykonywane w każdej turze symulacji (np. ruch, jedzenie, rozmnażanie).
-    *   `getSymbol()`: Zwraca `String` reprezentujący typ organizmu (np. "R" dla ryby roślinożernej), może być użyte do tekstowej reprezentacji akwarium.
-*   **Metody (public):**
-    *   `getX()`, `getY()`: Gettery dla współrzędnych.
-    *   `czyZywy()`: Zwraca wartość flagi `zywy`.
-    *   `getWiek()`: Getter dla wieku.
-    *   `setPozycja(int x, int y)`: Ustawia nowe współrzędne `x` i `y` organizmu.
-    *   `zabij()`: Ustawia flagę `zywy` na `false`, oznaczając organizm jako martwy.
-    *   `zwiekszWiek()`: Inkrementuje pole `wiek` o 1.
+    *   `akcja(Akwarium akwarium)`: Definiuje działania organizmu w każdej turze.
+    *   `getSymbol()`: Zwraca `String` reprezentujący typ organizmu (np. "R").
+*   **Metody (publiczne):**
+    *   `getX()`, `getY()`, `czyZywy()`, `getWiek()`, `getMaxWiek()`: Gettery.
+    *   `setPozycja(int x, int y)`: Ustawia nowe współrzędne.
+    *   `zabij()`: Ustawia `zywy` na `false`.
+    *   `zwiekszWiek()`: Inkrementuje `wiek`. Jeśli `wiek >= maxWiek`, wywołuje `zabij()` i zwraca `true` (oznaczając, że organizm umarł w wyniku tej akcji). W przeciwnym razie zwraca `false`.
 
 ## `app/src/main/java/akwarium/model/Ryba.java`
 
 *   **Pakiet:** `akwarium.model`
-*   **Cel:** Abstrakcyjna klasa bazowa dla wszystkich typów ryb, dziedzicząca po `Organizm`. Dodaje cechy specyficzne dla ryb, takie jak głód i ruch.
+*   **Cel:** Abstrakcyjna klasa bazowa dla ryb, dziedzicząca po `Organizm`. Dodaje cechy takie jak głód, ruch i rozmnażanie.
 *   **Pola (protected):**
-    *   `glod`: `int`, aktualny poziom głodu ryby (0 = najedzona).
-    *   `maxGlod`: `int`, maksymalny poziom głodu, po przekroczeniu którego ryba umiera.
-    *   `predkosc`: `int`, określa, o ile pól ryba może się poruszyć w jednej turze (obecnie podstawowy ruch to 1 pole).
-    *   `random`: `Random`, generator liczb losowych używany np. przy wyborze kierunku ruchu.
+    *   `glod`: `int`, aktualny poziom głodu (0 = najedzona).
+    *   `maxGlod`: `int`, maksymalny głód, po którym ryba umiera.
+    *   `predkosc`: `int`, (obecnie nie w pełni wykorzystywane, ruch o 1 pole).
+    *   `random`: `Random`, współdzielony generator liczb losowych (`SHARED_RANDOM`) dla wszystkich ryb.
 *   **Konstruktor:** `Ryba(int x, int y, int maxWiek, int predkosc, int maxGlod)`
-    1.  Wywołuje konstruktor klasy nadrzędnej `Organizm(x, y, maxWiek)`.
-    2.  Inicjalizuje pola `predkosc`, `maxGlod`.
-    3.  Ustawia `glod` na `0`.
+    1.  Wywołuje konstruktor `Organizm(x, y, maxWiek)`.
+    2.  Inicjalizuje `predkosc`, `maxGlod` i ustawia `glod` na `0`.
 *   **Metody (protected):**
+    *   `czyPoleAkceptowalne(int x, int y, Akwarium akwarium)`: Domyślnie zwraca `true`, jeśli pole jest puste. Może być nadpisane przez klasy potomne.
     *   `ruszaj(Akwarium akwarium)`:
-        1.  Tworzy listę `mozliweRuchy` (typu `List<Point>`).
-        2.  Sprawdza 8 sąsiednich pól. Jeśli któreś jest prawidłowe (`akwarium.czyPolePrawidlowe`) i puste (`akwarium.czyPolePuste`), dodaje je do `mozliweRuchy`.
-        3.  Jeśli lista `mozliweRuchy` nie jest pusta, losuje jeden z możliwych ruchów i przenosi rybę na nowe pole za pomocą `akwarium.przeniesOrganizm(this, wybranyRuch.x, wybranyRuch.y)`.
+        1.  Znajduje wszystkie sąsiednie pola, które są prawidłowe i akceptowalne (`czyPoleAkceptowalne`).
+        2.  Jeśli są dostępne ruchy, losowo wybiera jeden i przenosi tam rybę (`akwarium.przeniesOrganizm`).
+    *   `probaRozmnazania(Akwarium akwarium)`:
+        1.  Ryba może próbować się rozmnożyć tylko, jeśli nie jest zbyt głodna (np. `glod <= maxGlod * 0.25`).
+        2.  Sprawdza sąsiednie pola w poszukiwaniu partnera tego samego typu, który również nie jest zbyt głodny.
+        3.  Jeśli partner zostanie znaleziony i losowa szansa na rozmnożenie (np. 30%) się powiedzie:
+            *   Szuka pustego sąsiedniego pola dla potomka (najpierw wokół `this`, potem wokół partnera).
+            *   Jeśli znajdzie wolne miejsce, tworzy nowy obiekt ryby tego samego typu (`DrapieznaRyba` lub `RoslinozernaRyba`).
+            *   Dodaje potomka do akwarium.
+            *   Loguje zdarzenie rozmnożenia.
+            *   Zwiększa głód obu rodziców (koszt energetyczny rozmnażania).
+            *   Zwraca `true`.
+        4.  W przeciwnym razie zwraca `false`.
+    *   `czyBardzoGlodna()`: Zwraca `true`, jeśli głód przekracza pewien próg (np. 80% `maxGlod`).
 *   **Metoda abstrakcyjna (public):**
-    *   `probaJedzenia(Akwarium akwarium)`: Definiuje logikę poszukiwania i konsumpcji pożywienia. Musi być zaimplementowana przez konkretne typy ryb. Zwraca `true`, jeśli ryba coś zjadła, `false` w przeciwnym razie.
+    *   `probaJedzenia(Akwarium akwarium)`: Logika szukania i jedzenia pożywienia. Musi zwrócić `true`, jeśli ryba coś zjadła.
 *   **Metoda `akcja(Akwarium akwarium)` (override):**
-    1.  Wywołuje `zwiekszWiek()`.
-    2.  Wywołuje `zwiekszGlod(1)` (ryba staje się bardziej głodna).
-    3.  Sprawdza, czy ryba umarła ze starości (`getWiek() >= maxWiek`) lub z głodu (`this.glod >= maxGlod`). Jeśli tak:
-        *   Wywołuje `zabij()`.
-        *   Kończy metodę (`return`).
-    4.  Wywołuje `boolean zjadlem = probaJedzenia(akwarium)`.
-    5.  Jeśli ryba nic nie zjadła (`!zjadlem`), wywołuje `ruszaj(akwarium)`.
+    1.  Wywołuje `zwiekszWiek()` i `zwiekszGlod(1)`.
+    2.  Jeśli ryba umarła ze starości lub głodu, wywołuje `zabij()` i kończy.
+    3.  Wywołuje `boolean zjadlem = probaJedzenia(akwarium)`.
+    4.  Jeśli nie zjadła (`!zjadlem`):
+        *   Jeśli nie jest bardzo głodna, próbuje się rozmnożyć (`boolean rozmnazylemSie = probaRozmnazania(akwarium)`).
+        *   Jeśli się nie rozmnożyła (`!rozmnazylemSie`), wykonuje ruch (`ruszaj(akwarium)`).
 *   **Metody związane z głodem (public):**
-    *   `getGlod()`: Zwraca aktualny poziom głodu.
-    *   `zwiekszGlod(int wartosc)`: Zwiększa `glod` o `wartosc`, ale nie więcej niż `maxGlod`.
-    *   `zmniejszGlod(int wartosc)`: Zmniejsza `glod` o `wartosc`, ale nie mniej niż 0.
-    *   `czyGlodna()`: Zwraca `true`, jeśli `glod` jest większy niż połowa `maxGlod`.
+    *   `getGlod()`: Getter.
+    *   `zwiekszGlod(int wartosc)`: Zwiększa `glod`, maksymalnie do `maxGlod`.
+    *   `zmniejszGlod(int wartosc)`: Zmniejsza `glod`, minimalnie do 0.
+    *   `czyGlodna()`: Zwraca `true`, jeśli `glod > maxGlod / 2`.
 
 ## `app/src/main/java/akwarium/model/RoslinozernaRyba.java`
 
 *   **Pakiet:** `akwarium.model`
-*   **Cel:** Reprezentuje rybę roślinożerną, która żywi się glonami. Dziedziczy po `Ryba`.
+*   **Cel:** Reprezentuje rybę roślinożerną, żywiącą się glonami. Dziedziczy po `Ryba`.
 *   **Konstruktor:** `RoslinozernaRyba(int x, int y)`
-    1.  Wywołuje konstruktor klasy nadrzędnej `Ryba` z predefiniowanymi wartościami: `maxWiek = 200`, `predkosc = 1`, `maxGlod = 100`.
+    1.  Wywołuje konstruktor `Ryba` z predefiniowanymi wartościami (`maxWiek = 200`, `predkosc = 1`, `maxGlod = 100`).
 *   **Metoda `probaJedzenia(Akwarium akwarium)` (override):**
     1.  Jeśli ryba nie jest głodna (`!czyGlodna()`), zwraca `false`.
-    2.  Pobiera listę organizmów znajdujących się na tym samym polu co ryba (`akwarium.getOrganizmyNaPozycji(this.x, this.y)`).
-    3.  Iteruje po tej liście. Jeśli znajdzie organizm, który jest instancją `Glon` i jest żywy (`o.czyZywy()`):
-        *   Rzutuje ten organizm na typ `Glon`.
-        *   Wywołuje metodę `jedz(glon)`.
-        *   Zwraca `true` (ryba zjadła).
-    4.  Jeśli pętla zakończy się bez znalezienia glonu, zwraca `false`.
-*   **Metoda `jedz(Glon glon)`:**
+    2.  Przeszukuje 9 pól (swoje i 8 sąsiednich) w poszukiwaniu glonów.
+    3.  Dla każdego znalezionego, żywego `Glon`:
+        *   Wywołuje `jedz(glon, akwarium)`.
+        *   Zwraca `true`.
+    4.  Jeśli nie znajdzie glonu, zwraca `false`.
+*   **Metoda `jedz(Glon glon, Akwarium akwarium)`:**
     1.  Zabija zjedzony glon (`glon.zabij()`).
-    2.  Zmniejsza głód ryby o wartość odżywczą glonu (`this.zmniejszGlod(glon.getWartoscOdzywcza())`).
-    3.  Loguje zdarzenie zjedzenia glona na `System.out.println()`.
+    2.  Zmniejsza głód ryby o `glon.getWartoscOdzywcza()`.
+    3.  Loguje zdarzenie zjedzenia glonu poprzez `akwarium.logujZdarzenie()`.
 *   **Metoda `getSymbol()` (override):** Zwraca "R".
 
 ## `app/src/main/java/akwarium/model/DrapieznaRyba.java`
 
 *   **Pakiet:** `akwarium.model`
-*   **Cel:** Reprezentuje rybę drapieżną, która poluje na ryby roślinożerne. Dziedziczy po `Ryba`.
+*   **Cel:** Reprezentuje rybę drapieżną, polującą na ryby roślinożerne. Dziedziczy po `Ryba`.
 *   **Pola (private static final):**
-    *   `WARTOSC_ODZYWCZA_ROSLINOZERNEJ`: `int`, stała określająca, o ile zmniejszy się głód drapieżnika po zjedzeniu ryby roślinożernej.
+    *   `WARTOSC_ODZYWCZA_ROSLINOZERNEJ`: `int`, stała wartość odżywcza zjedzonej ryby roślinożernej.
 *   **Konstruktor:** `DrapieznaRyba(int x, int y)`
-    1.  Wywołuje konstruktor klasy nadrzędnej `Ryba` z predefiniowanymi wartościami: `maxWiek = 250`, `predkosc = 1`, `maxGlod = 150`.
+    1.  Wywołuje konstruktor `Ryba` z predefiniowanymi wartościami (`maxWiek = 250`, `predkosc = 1`, `maxGlod = 150`).
 *   **Metoda `probaJedzenia(Akwarium akwarium)` (override):**
     1.  Jeśli ryba nie jest głodna (`!czyGlodna()`), zwraca `false`.
-    2.  Pobiera listę organizmów znajdujących się na tym samym polu co drapieżnik.
-    3.  Iteruje po tej liście. Jeśli znajdzie organizm, który jest instancją `RoslinozernaRyba` i jest żywy:
-        *   Rzutuje ten organizm na typ `RoslinozernaRyba`.
-        *   Wywołuje metodę `jedz(rybaDoZjedzenia)`.
-        *   Zwraca `true` (drapieżnik zjadł).
-    4.  Jeśli pętla zakończy się bez znalezienia ofiary, zwraca `false`.
-*   **Metoda `jedz(RoslinozernaRyba ryba)`:**
-    1.  Zabija zjedzoną rybę roślinożerną (`ryba.zabij()`).
+    2.  Przeszukuje 9 pól (swoje i 8 sąsiednich) w poszukiwaniu ryb roślinożernych.
+    3.  Dla każdej znalezionej, żywej `RoslinozernaRyba`:
+        *   Wywołuje `jedz(rybaDoZjedzenia, akwarium)`.
+        *   Zwraca `true`.
+    4.  Jeśli nie znajdzie ofiary, zwraca `false`.
+*   **Metoda `jedz(RoslinozernaRyba ryba, Akwarium akwarium)` (prywatna):**
+    1.  Zabija zjedzoną rybę (`ryba.zabij()`).
     2.  Zmniejsza głód drapieżnika o `WARTOSC_ODZYWCZA_ROSLINOZERNEJ`.
-    3.  Loguje zdarzenie zjedzenia ryby na `System.out.println()`.
+    3.  Loguje zdarzenie zjedzenia ryby poprzez `akwarium.logujZdarzenie()`.
 *   **Metoda `getSymbol()` (override):** Zwraca "D".
 
 ## `app/src/main/java/akwarium/model/Glon.java`
 
 *   **Pakiet:** `akwarium.model`
-*   **Cel:** Reprezentuje glon, który jest pożywieniem dla ryb roślinożernych i może się rozmnażać. Dziedziczy po `Organizm`.
-*   **Pola (private):**
-    *   `wartoscOdzywcza`: `int`, wartość odżywcza glonu.
-    *   `random`: `Random`, generator liczb losowych.
-*   **Pola (private static final):**
-    *   `SZANSA_NA_ROZROST`: `double`, stała określająca prawdopodobieństwo rozmnożenia się glonu w każdej turze.
+*   **Cel:** Reprezentuje glon, pożywienie dla ryb roślinożernych, zdolny do rozmnażania. Dziedziczy po `Organizm`.
+*   **Pola:**
+    *   `wartoscOdzywcza`: `int`.
+    *   `random`: `Random`.
+    *   `SZANSA_NA_ROZROST`: `double` (stała), prawdopodobieństwo rozmnożenia w turze.
 *   **Konstruktor:** `Glon(int x, int y)`
-    1.  Wywołuje konstruktor klasy nadrzędnej `Organizm` z predefiniowanym `maxWiek = 50`.
+    1.  Wywołuje konstruktor `Organizm` (`maxWiek = 50`).
     2.  Inicjalizuje `wartoscOdzywcza` (np. na 10).
 *   **Metoda `akcja(Akwarium akwarium)` (override):**
     1.  Wywołuje `zwiekszWiek()`.
-    2.  Sprawdza, czy glon umarł ze starości (`getWiek() >= maxWiek`) lub jest już martwy (`!czyZywy()`). Jeśli tak:
-        *   Wywołuje `zabij()`.
-        *   Kończy metodę (`return`).
-    3.  **Logika rozrostu (rozmnażania):**
-        *   Generuje losową liczbę. Jeśli jest mniejsza niż `SZANSA_NA_ROZROST`:
-            *   Próbuje znaleźć puste sąsiednie pole za pomocą `akwarium.znajdzPusteSasiedniePole(this.x, this.y)`.
-            *   Jeśli znaleziono puste pole (`pustePole != null`):
-                *   Tworzy nowy obiekt `Glon` na współrzędnych `pustePole.x`, `pustePole.y`.
-                *   Dodaje nowy glon do akwarium (`akwarium.dodajOrganizm(nowyGlon)`).
-                *   Loguje zdarzenie rozmnożenia się glonu na `System.out.println()`.
-*   **Metoda `getWartoscOdzywcza()`:** Zwraca `wartoscOdzywcza`.
-*   **Metoda `getSymbol()` (override):** Zwraca "G".
+    2.  Jeśli glon umarł ze starości, wywołuje `zabij()` i kończy.
+    3.  **Logika rozrostu:**
+        *   Jeśli losowa liczba jest mniejsza niż `SZANSA_NA_ROZROST`:
+            *   Szuka pustego sąsiedniego pola (`akwarium.znajdzPusteSasiedniePole`).
+            *   Jeśli znajdzie (`pustePole != null`):
+                *   Tworzy nowy `Glon` na tym polu.
+                *   Dodaje go do akwarium.
+                *   Loguje zdarzenie rozmnożenia poprzez `akwarium.logujZdarzenie()`.
+*   **Metody (publiczne):**
+    *   `getWartoscOdzywcza()`: Getter.
+    *   `getSymbol()` (override): Zwraca "G".
 
-## `app/src/test/java/akwarium/model/GlonTest.java`
+## Pliki GUI nieopisane w logice (AkwariumPanel, ControlPanel)
 
-*   **Cel:** Klasa przeznaczona do testów jednostkowych dla klasy `Glon`.
-*   **Aktualny stan:** Plik jest obecnie pusty i czeka na implementację testów (np. przy użyciu JUnit).
+Poniższe pliki są częścią interfejsu graficznego, ale ich szczegółowa implementacja nie była bezpośrednio odczytywana w tym procesie. Ich ogólny cel jest następujący:
 
-## `app/src/test/java/akwarium/model/RybaTest.java`
+### `app/src/main/java/akwarium/gui/AkwariumPanel.java`
 
-*   **Cel:** Klasa przeznaczona do testów jednostkowych dla klasy `Ryba` oraz jej klas pochodnych (`RoslinozernaRyba`, `DrapieznaRyba`).
-*   **Aktualny stan:** Plik jest obecnie pusty i czeka na implementację testów.
+*   **Cel:** Panel odpowiedzialny za wizualne rysowanie stanu akwarium, czyli siatki i znajdujących się na niej organizmów. Prawdopodobnie nadpisuje metodę `paintComponent(Graphics g)` do rysowania.
+
+### `app/src/main/java/akwarium/gui/ControlPanel.java`
+
+*   **Cel:** Panel zawierający elementy interfejsu użytkownika do sterowania symulacją i jej parametrami. Są to przyciski (Start, Stop, Krok, Reset), suwak prędkości oraz pola tekstowe lub numeryczne do ustawiania rozmiaru akwarium i początkowej liczby organizmów. Przekazuje akcje użytkownika do `AkwariumGUI`.
+
